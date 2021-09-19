@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting For Verification</title>
+    <link rel="stylesheet" href="/css/waiting.css">
+</head>
+<body>
+    <main class="wrapper">
+        <div class="clock">
+            <div class="hour">
+            <div class="hr" id="hr">
+            </div>
+            <div class="min">
+            <div class="mn" id="mn">
+            </div>
+            <div class="sec">
+            <div class="sc" id="sc">
+            </div>
+            </div>
+        </div>
+        <div class="main_wrapper">
+            <h1 class="heading">Verification</h1>
+            <p class="todo">We sent a email to your account's email to verify your a human and to verify you really are the owner of the account. Please open the link in the email to authenticate yourself.</p>
+        </div>
+    </main>
+    <script>
+        const deg = 6;
+        const hr = document.querySelector('#hr')
+        const mn = document.querySelector('#mn')
+        const sc = document.querySelector('#sc')
+
+        setInterval(()=>{
+        let day = new Date();
+        let hh = day.getHours() * 30
+        let mm = day.getMinutes() * deg
+        let ss = day.getSeconds() * deg
+        
+        hr.style.transform = `rotateZ(${(hh)+ (mm/12)}deg)`
+        mn.style.transform = `rotateZ(${mm}deg)`
+        sc.style.transform = `rotateZ(${ss}deg)`
+        })
+    </script>
+</body>
+</html>

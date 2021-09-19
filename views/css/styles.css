@@ -2,6 +2,10 @@
 /* $intro_text_color: #444;
 $p_color: #555;
 $name_color: #2978b5; */
+html, body {
+   margin: 0px;
+   padding: 0px;
+}
 *{
     font-family: poppins, sans-serif;
 }
@@ -12,10 +16,11 @@ $name_color: #2978b5; */
     flex-direction: column;
     width: 100%;
     height: 100vh;
+    background-color: #091921;
 }
 .heading{
     font-size: 3rem;
-    color: #555;
+    color: #fff;
 }
 form{
     display: flex;
@@ -33,11 +38,12 @@ input:focus{
     outline: none;
 }
 .input{
-    border: 2px solid #2978b5;
+    border: 2px solid #5eb6ff;
     position: relative;
-    color: #555;
+    color: #fff;
     border-radius: 3px;
     padding: 8px 4px;
+    background-color: #2978b5;
 }
 .submit{
     background-color: #008cff;
@@ -50,7 +56,7 @@ input:focus{
 }
 label{
     font-size: 2rem;
-    color: #444;
+    color: #fff;
 }
 .login{
     color: #0051ff;

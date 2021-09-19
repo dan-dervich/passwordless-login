@@ -15,6 +15,7 @@ const path = require('path');
 const {
     v4: uuidv4
 } = require('uuid');
+const auth = require('./auth')
 
 
 app.use(express.static(path.join(__dirname, '/views')))
@@ -29,7 +30,7 @@ const transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: "juanchodelarosa11173663@gmail.com",
-        pass: "itrlwghkrunawqtj"
+        pass: process.env.EMAIL_PASS
     }
 })
 
@@ -58,42 +59,102 @@ mongoose.connect(process.env.CLUSTER, {
 })
 
 const schema = new Schema({
-    art: {
+    username: {
         type: String,
+        required: true,
+        index: true,
+        unique: true
     },
-    art_number: {
-        type: Number,
-    },
-    palabras_clave: {
+    email: {
         type: String,
+        required: true,
+        index: true,
+        unique: true
     },
-    desc: {
-        type: String
-    },
-    img_change: {
-        type: Array
-    },
-    main_img: String,
-    producto: String,
-    categoria: String,
-    sub_category: {
-        type: String,
-    },
-    ofertas: {
-        type: String
-    },
-    precio_mayor: {
-        type: Number
-    },
-}, {
-    collection: "Users"
 })
-const users = mongoose.model('Users', schema)
+const Users = mongoose.model('Users', schema)
 
-app.get('/', (req,res)=>{
+// sign up
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'))
 })
-app.get('/login', (req,res)=>{
+app.post('/sign-up', async (req, res) => {
+    const token = await auth.create_jwt(req, 300)
+    mail = {
+        from: 'juanchodelarosa11173663@gmail.com',
+        to: req.body.email,
+        subject: 'Verification',
+        body: `<h1>Verify Your email:</h1> <br> <h4>https://dan-dervich.github.io/passwordless-login/verify-token/${token}</h4> <br> <p>You have 5 minutes to verify before it expires</p>`
+    }
+    sendEmail(mail)
+    res.redirect('/waiting-for-verification')
+})
+app.get('/verify-token/:id', async (req, res) => {
+    const authentication = await auth.validate(req, res, req.params.id)
+    if(authentication === false){
+        res.redirect('/sign-up')
+    }
+    else{
+        res.redirect('/posts')
+    }
+})
+// login
+app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'))
+})
+app.post('/login', async (req,res)=>{
+    const token = await auth.create_jwt(req, 300)
+    mail = {
+        from: 'juanchodelarosa11173663@gmail.com',
+        to: req.body.email,
+        subject: 'Verification',
+        body: `<h1>Login</h1> <br> <h4>https://dan-dervich.github.io/passwordless-login/validate-token/${token}</h4> <br> <p>You have 5 minutes to login with this token before it expires</p>`
+    }
+    sendEmail(mail)
+    res.redirect('/waiting-for-verification')
+})
+app.get('/validate-token/:id', async (req,res)=>{
+    const authentication = await auth.validate(req, res, req.params.id)
+    if(authentication === false){
+        res.redirect('/login')
+    }
+    else{
+        res.redirect('/posts')
+    }
+})
+
+// user frontend verification
+app.get('/users/', async (req, res) => {
+    const docs = await Users.findOne({}, {
+        email: 0
+    })
+    res.json({
+        docs
+    })
+})
+app.get('/email/', async (req, res) => {
+    const docs = await Users.findOne({}, {
+        username: 0
+    })
+    res.json({
+        docs
+    })
+})
+// logged in :D
+app.get('/posts', async (req, res) => {
+    const user_valid = await auth.validate(req, res, req.cookies['token'])
+    if (user_valid === false) {
+        res.redirect('/login')
+    } else {
+        res.sendFile(path.join(__dirname, 'posts.html'))
+    }
+})
+app.get('/asdf', async (req,res)=>{
+    const docs = await Users.find()
+    res.json(docs)
+})
+// waiting
+app.get('/waiting-for-verification', (req, res) => {
+    res.sendFile(path.join(__dirname, 'verification.html'))
 })
 app.listen(3000)
